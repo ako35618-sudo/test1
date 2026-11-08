@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>컴퓨팅 시스템의 동작 원리</title>
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--tx:#1d2733;--sub:#5b6776;--pri:#2563eb;--ok:#15803d;--okbg:#dcfce7;--no:#b91c1c;--nobg:#fee2e2;--bd:#dde3ea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10161d;--card:#18212b;--tx:#e6ebf1;--sub:#9aa7b5;--pri:#6b9bff;--ok:#6ee7a0;--okbg:#12351f;--no:#fca5a5;--nobg:#3b1818;--bd:#2b3846;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10161d;--card:#18212b;--tx:#e6ebf1;--sub:#9aa7b5;--pri:#6b9bff;--ok:#6ee7a0;--okbg:#12351f;--no:#fca5a5;--nobg:#3b1818;--bd:#2b3846;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.7;font-size:17px}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:1.35rem;margin:8px 0 2px}.std{font-size:.82rem;color:var(--sub);margin:0 0 12px}
+nav{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+nav button{flex:1;min-width:70px;padding:10px 6px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+nav button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.card{background:var(--card);border:1px solid var(--bd);border-left:6px solid var(--pri);border-radius:18px;padding:16px 18px;margin-bottom:14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:8px 0 12px}.tile{background:var(--bg);border:2px solid var(--bd);border-radius:14px;padding:10px 6px;text-align:center}.tile i{display:block;font-style:normal;font-size:2.2rem}.tile b{display:block}.tile span{font-size:.82rem;color:var(--sub)}
+svg.fig{width:100%;height:auto;margin:6px 0}
+.card h2{font-size:1.05rem;margin:0 0 6px}
+.tag{display:inline-block;font-size:.75rem;padding:1px 8px;border-radius:99px;background:var(--pri);color:#fff;margin-right:6px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}td,th{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--bg)}
+.tw{overflow-x:auto}
+.flow{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.node{flex:1;min-width:120px;padding:10px 6px;text-align:center;border:2px solid var(--bd);border-radius:10px;font-weight:600;font-size:.9rem;transition:.25s}
+.node.act{border-color:var(--pri);background:var(--pri);color:#fff;transform:scale(1.04)}
+.btn{padding:9px 16px;border:0;border-radius:10px;background:var(--pri);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.btn.ghost{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:14px 14px;font-size:1rem;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font:inherit;cursor:pointer}
+.opt.ok{background:var(--okbg);border-color:var(--ok)}.opt.no{background:var(--nobg);border-color:var(--no)}
+.fb{margin-top:8px;padding:10px 12px;border-radius:10px;font-size:.92rem}
+.fb.ok{background:var(--okbg)}.fb.no{background:var(--nobg)}
+.bar{height:8px;background:var(--bd);border-radius:9px;overflow:hidden;margin-bottom:12px}.bar i{display:block;height:100%;background:var(--pri);width:0;transition:.3s}
+.note{font-size:.8rem;color:var(--sub)}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>💻 컴퓨팅 시스템의 동작 원리</h1>
+<p class="std">중학교 정보 · 성취기준 [9정01-01] 컴퓨팅 시스템의 구성요소와 동작 원리를 이해하고, 운영 체제의 기능을 분석한다.</p>
+<nav id="nav"></nav>
+
+<section id="learn">
+ <div class="card" style="border-left-color:#f59e0b"><h2>🎯 학습 목표</h2>
+ <p style="margin:4px 0">이 단원을 마치면 아래를 할 수 있어요. 배운 뒤 스스로 체크해 보세요!</p>
+ <label style="display:block;margin:6px 0"><input type="checkbox"> 컴퓨팅 시스템의 <b>하드웨어와 소프트웨어 구성요소</b>를 구분하고, 각각의 역할을 설명할 수 있다.</label>
+ <label style="display:block;margin:6px 0"><input type="checkbox"> 프로그램이 실행될 때 데이터가 입력·저장·처리·출력되는 <b>동작 원리</b>를 순서대로 설명할 수 있다.</label>
+ <label style="display:block;margin:6px 0"><input type="checkbox"> <b>운영체제의 기능</b>을 예를 들어 분석할 수 있다.</label>
+ <p class="note">※ 성취기준 [9정01-01]을 바탕으로 AI가 정리한 학습 목표(창작)예요. 사용하는 교과서의 학습 목표와 표현이 다를 수 있어요.</p></div>
+ <div class="card"><h2><span class="tag">1</span>컴퓨팅 시스템이란?</h2>
+ <p>컴퓨터는 <b>정보를 받아서(입력) → 처리하고 → 결과를 보여 주는(출력)</b> 기계예요. 만져 볼 수 있는 장치는 <b>하드웨어</b>, 장치를 움직이게 하는 프로그램은 <b>소프트웨어</b>라고 해요.</p>
+<svg class="fig" viewBox="0 0 640 275" role="img" aria-label="컴퓨터 구성 그림"><style>.b{fill:var(--card);stroke:var(--pri);stroke-width:2.5}.h{fill:var(--pri);stroke:var(--pri)}.t{font-size:15px;font-weight:700;fill:var(--tx);text-anchor:middle}.w{fill:#fff}.e{font-size:30px;text-anchor:middle}.a{stroke:var(--sub);stroke-width:3;fill:none;marker-end:url(#h)}.a2{stroke:var(--sub);stroke-width:3;fill:none;marker-start:url(#h);marker-end:url(#h)}</style><defs><marker id="h" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#888"/></marker></defs><rect class="b" x="10" y="20" width="150" height="80" rx="14"/><text class="e" x="85" y="58">⌨️🖱️</text><text class="t" x="85" y="86">입력장치</text><rect class="h" x="245" y="20" width="150" height="80" rx="14"/><text class="e" x="320" y="58">🧠</text><text class="t w" x="320" y="86">CPU</text><rect class="b" x="480" y="20" width="150" height="80" rx="14"/><text class="e" x="555" y="58">🖥️🔊</text><text class="t" x="555" y="86">출력장치</text><rect class="b" x="245" y="122" width="150" height="55" rx="14"/><text class="t" x="320" y="147">주기억장치(RAM)</text><text class="t" x="320" y="166" style="font-size:12px;font-weight:400">실행 중인 것을 잠깐 둠</text><rect class="b" x="245" y="200" width="150" height="55" rx="14"/><text class="t" x="320" y="225">보조기억장치</text><text class="t" x="320" y="244" style="font-size:12px;font-weight:400">SSD·HDD, 오래 보관</text><path class="a" d="M160 60H243"/><path class="a" d="M395 60H478"/><path class="a2" d="M320 102V120"/><path class="a2" d="M320 179V198"/></svg>
+<p class="note">그림: 이 앱을 위해 AI가 새로 그린 도식(창작)이에요. 화살표는 데이터가 오가는 방향을 보여 줘요.</p>
+ <p class="note">스마트폰, 태블릿, 키오스크도 모두 컴퓨팅 시스템입니다.</p></div>
+
+ <div class="card"><h2><span class="tag">2</span>하드웨어의 구성</h2>
+ <div class="tiles"><div class="tile"><i>⌨️</i><b>입력장치</b><span>컴퓨터의 눈·귀·손<br>(비유)</span></div><div class="tile"><i><svg viewBox='0 0 100 100' width='88' height='88' role='img' aria-label='CPU 그림'><path d='M26 6V20M38 6V20M50 6V20M62 6V20M74 6V20M26 80V94M38 80V94M50 80V94M62 80V94M74 80V94M6 26H20M6 38H20M6 50H20M6 62H20M6 74H20M80 26H94M80 38H94M80 50H94M80 62H94M80 74H94' stroke='#c9a227' stroke-width='4'/><rect x='18' y='18' width='64' height='64' rx='6' fill='#4b5563' stroke='#1f2937' stroke-width='2'/><rect x='33' y='33' width='34' height='34' rx='3' fill='#9ca3af' stroke='#e5e7eb'/><text x='50' y='54' font-size='13' font-weight='700' fill='#111' text-anchor='middle'>CPU</text><path d='M18 18L28 18L18 28z' fill='#c9a227'/></svg></i><b>CPU</b><span>컴퓨터의 두뇌<br>(비유)</span></div><div class="tile"><i><svg viewBox='0 0 100 100' width='88' height='88' role='img' aria-label='RAM 그림'><rect x='4' y='26' width='92' height='42' rx='3' fill='#15803d' stroke='#14532d' stroke-width='2'/><rect x='10' y='34' width='16' height='24' rx='2' fill='#111827'/><rect x='30' y='34' width='16' height='24' rx='2' fill='#111827'/><rect x='54' y='34' width='16' height='24' rx='2' fill='#111827'/><rect x='74' y='34' width='16' height='24' rx='2' fill='#111827'/><rect x='4' y='68' width='92' height='12' fill='#d4a017'/><path d='M8 74H92' stroke='#92400e' stroke-width='12' stroke-dasharray='1.5 2.5'/><rect x='48' y='66' width='4' height='16' fill='#f6f8fb'/><text x='50' y='20' font-size='12' font-weight='700' fill='currentColor' text-anchor='middle'>RAM</text></svg></i><b>주기억장치</b><span>공부할 때 펼친 책상<br>(비유)</span></div><div class="tile"><i><svg viewBox='0 0 100 100' width='88' height='88' role='img' aria-label='SSD 그림'><rect x='4' y='22' width='80' height='56' rx='6' fill='#94a3b8' stroke='#475569' stroke-width='2'/><rect x='13' y='32' width='52' height='36' rx='3' fill='#1e293b'/><text x='39' y='55' font-size='15' font-weight='700' fill='#fff' text-anchor='middle'>SSD</text><circle cx='10' cy='28' r='2' fill='#475569'/><circle cx='78' cy='28' r='2' fill='#475569'/><circle cx='10' cy='72' r='2' fill='#475569'/><circle cx='78' cy='72' r='2' fill='#475569'/><rect x='84' y='38' width='12' height='24' rx='2' fill='#d4a017'/><path d='M87 42V58M91 42V58' stroke='#92400e' stroke-width='1.5'/></svg></i><b>보조기억장치</b><span>자료를 꽂아 둔 책장<br>(비유)</span></div><div class="tile"><i>📺</i><b>출력장치</b><span>컴퓨터의 입·표정<br>(비유)</span></div></div>
+ <p class="note">‘비유’는 이해를 돕기 위해 AI가 만든 표현이에요. 시험에서는 아래 표의 정식 설명을 쓰세요.<br>CPU·RAM·SSD 그림은 실제 부품의 대표적인 모양을 생각해 AI가 새로 그린 도식(창작)이며 사진이 아니에요. 실제 부품은 제품마다 모양이 달라요.</p>
+ <div class="tw"><table>
+ <tr><th>구분</th><th>역할</th><th>예</th></tr>
+ <tr><td>입력장치</td><td>데이터를 컴퓨터에 넣음</td><td>키보드, 마우스, 마이크, 터치스크린</td></tr>
+ <tr><td>중앙처리장치(CPU)</td><td>명령을 해석(제어장치)하고 계산(연산장치)함 — 컴퓨터의 두뇌</td><td>CPU</td></tr>
+ <tr><td>주기억장치</td><td>실행 중인 프로그램·데이터를 잠시 저장. 속도 빠름, 전원이 꺼지면 내용이 사라짐(휘발성)</td><td>RAM</td></tr>
+ <tr><td>보조기억장치</td><td>프로그램·파일을 오래 저장. 전원이 꺼져도 유지됨</td><td>SSD, HDD, USB</td></tr>
+ <tr><td>출력장치</td><td>처리 결과를 사람에게 보여줌</td><td>모니터, 스피커, 프린터</td></tr>
+ </table></div></div>
+
+ <div class="card"><h2><span class="tag">3</span>소프트웨어의 구성</h2>
+ <div class="tw"><table>
+ <tr><th>구분</th><th>설명</th><th>예</th></tr>
+ <tr><td>시스템 소프트웨어</td><td>하드웨어를 관리하고 다른 프로그램이 실행될 환경을 제공. 대표적으로 <b>운영체제</b></td><td>Windows, macOS, Linux, Android, iOS</td></tr>
+ <tr><td>응용 소프트웨어</td><td>사용자가 특정 목적을 위해 쓰는 프로그램</td><td>웹 브라우저, 문서 편집기, 게임, 메신저</td></tr>
+ </table></div></div>
+
+ <div class="card"><h2><span class="tag">4</span>동작 원리 — 단계별로 보기</h2>
+ <p>'게임 앱을 실행하는 과정'을 한 단계씩 눌러 보세요.</p>
+ <div class="flow" id="flow"></div>
+ <p id="flowtxt" style="min-height:3.2em"></p>
+ <button class="btn" id="step">다음 단계 ▶</button> <button class="btn ghost" id="reset">처음부터</button></div>
+
+ <div class="card"><h2><span class="tag">5</span>운영체제(OS)의 기능</h2>
+ <p>운영체제는 <b>사용자·응용 프로그램·하드웨어 사이를 이어 주는 관리자</b>예요. 교통 정리를 하는 안내원처럼, 여러 프로그램이 부딪히지 않게 자원을 나눠 줘요.</p>
+<svg class="fig" viewBox="0 0 640 235" role="img" aria-label="운영체제의 위치 그림"><style>.l{fill:var(--card);stroke:var(--pri);stroke-width:2.5}.lo{fill:var(--pri)}.lt{font-size:16px;font-weight:700;fill:var(--tx);text-anchor:middle}.lw{fill:#fff}</style><rect class="l" x="60" y="8" width="520" height="44" rx="12"/><text class="lt" x="320" y="36">👤 사용자</text><rect class="l" x="60" y="62" width="520" height="44" rx="12"/><text class="lt" x="320" y="90">📱 응용 프로그램 (브라우저, 게임, 메신저)</text><rect class="lo" x="60" y="116" width="520" height="44" rx="12"/><text class="lt lw" x="320" y="144">⚙️ 운영체제 (자원 관리)</text><rect class="l" x="60" y="170" width="520" height="44" rx="12"/><text class="lt" x="320" y="198">🖥️ 하드웨어 (CPU, 메모리, 저장장치, 입출력장치)</text></svg>
+<p class="note">그림: AI가 새로 그린 도식(창작)</p>
+ <div class="tw"><table>
+ <tr><th>기능</th><th>쉬운 설명</th></tr>
+ <tr><td>프로세스(CPU) 관리</td><td>여러 프로그램이 CPU를 번갈아 쓰도록 순서를 정해 줌</td></tr>
+ <tr><td>메모리 관리</td><td>프로그램마다 주기억장치의 공간을 나누어 주고 회수함</td></tr>
+ <tr><td>파일(저장장치) 관리</td><td>파일과 폴더를 만들고, 찾고, 지우는 일을 도움</td></tr>
+ <tr><td>입출력장치 관리</td><td>키보드·프린터 같은 장치를 프로그램이 쉽게 쓰도록 연결함</td></tr>
+ <tr><td>사용자 인터페이스 제공</td><td>사용자가 컴퓨터를 조작하는 방법을 제공: <b>GUI</b>(그림·아이콘·마우스), <b>CLI</b>(글자 명령어)</td></tr>
+ </table></div>
+ <p class="note">※ 교과서(출판사)마다 운영체제 기능을 묶는 방식과 용어가 조금씩 달라요. 수업에서 쓰는 교과서의 표현과 비교해 확인하세요.</p></div>
+
+ <div class="card"><h2>한눈에 정리</h2>
+ <p>입력 → (보조기억장치에서 주기억장치로 불러옴) → CPU 처리 → 출력 / 이 모든 과정을 <b>운영체제</b>가 관리한다.</p></div>
+ <p class="note">※ 이 앱의 설명·비유·그림·퀴즈 문항은 AI가 성취기준에 맞춰 새로 만든 것으로, 특정 교과서의 원문이나 사진이 아닙니다(창작 내용). 사용 전 교사가 교과서와 대조해 검토해 주세요.</p>
+</section>
+
+<section id="quiz" class="hide">
+ <div class="bar"><i id="pg"></i></div>
+ <div class="card" id="qbox"></div>
+</section>
+
+</div>
+<script>
+var tabs=[["learn","📖 개념 학습"],["quiz","✏️ 문제 풀이"]];
+var nav=document.getElementById("nav");
+tabs.forEach(function(t){var b=document.createElement("button");b.textContent=t[1];b.onclick=function(){show(t[0])};b.dataset.k=t[0];nav.appendChild(b)});
+function show(k){tabs.forEach(function(t){document.getElementById(t[0]).classList.toggle("hide",t[0]!==k)});
+ [].forEach.call(nav.children,function(b){b.classList.toggle("on",b.dataset.k===k)});if(k==="quiz"&&!qi&&!done)render()}
+/* 단계 시뮬레이션 */
+var nodes=["보조기억장치","주기억장치","CPU","출력장치"];
+var txt=["① 사용자가 앱을 실행하면 운영체제가 보조기억장치(SSD)에 저장된 프로그램을 찾아요.","② 운영체제가 주기억장치(RAM)에 빈 공간을 마련하고 프로그램을 불러와요.","③ CPU가 주기억장치의 명령을 가져와 해석하고 계산해요.","④ 처리 결과(화면·소리)가 출력장치로 나가요."];
+var fl=document.getElementById("flow"),si=-1;
+nodes.forEach(function(n){var d=document.createElement("div");d.className="node";d.textContent=n;fl.appendChild(d)});
+function paint(){[].forEach.call(fl.children,function(d,i){d.classList.toggle("act",i===si)});document.getElementById("flowtxt").textContent=si<0?"‘다음 단계’를 눌러 시작하세요.":txt[si]}
+document.getElementById("step").onclick=function(){si=(si+1)%nodes.length;paint()};
+document.getElementById("reset").onclick=function(){si=-1;paint()};paint();
+/* 퀴즈 */
+var Q=[
+["다음 중 입력장치가 아닌 것은?",["키보드","마이크","모니터","마우스"],2,"모니터는 결과를 보여 주는 출력장치예요."],
+["CPU의 두 가지 주요 구성으로 알맞은 것은?",["입력장치와 출력장치","제어장치와 연산장치","주기억장치와 보조기억장치","운영체제와 응용 프로그램"],1,"제어장치는 명령을 해석·통제하고, 연산장치는 계산을 해요."],
+["전원이 꺼지면 저장된 내용이 사라지는(휘발성) 장치는?",["SSD","HDD","주기억장치(RAM)","USB 메모리"],2,"RAM은 실행 중인 것을 잠시 두는 곳이라 전원이 꺼지면 사라져요."],
+["프로그램과 파일을 오래 보관하는 데 알맞은 장치는?",["보조기억장치","RAM","CPU","스피커"],0,"SSD·HDD 같은 보조기억장치는 전원이 꺼져도 데이터가 유지돼요."],
+["다음 중 운영체제에 해당하는 것은?",["웹 브라우저","Android","메신저 앱","문서 편집기"],1,"Android는 운영체제이고 나머지는 응용 소프트웨어예요."],
+["여러 프로그램이 동시에 실행될 때 CPU 사용 순서를 정해 주는 운영체제의 기능은?",["프로세스(CPU) 관리","파일 관리","사용자 인터페이스","출력 장치 관리"],0,"CPU를 번갈아 쓰도록 조정하는 것은 프로세스(CPU) 관리예요."],
+["아이콘을 마우스로 눌러 컴퓨터를 조작하는 사용자 인터페이스는?",["CLI","GUI","BIOS","API"],1,"그래픽을 이용한 방식은 GUI, 글자 명령어를 입력하는 방식은 CLI예요."],
+["프로그램을 실행할 때의 올바른 흐름은?",["CPU → 보조기억장치 → 주기억장치","주기억장치 → 보조기억장치 → CPU","보조기억장치 → 주기억장치 → CPU","출력장치 → CPU → 입력장치"],2,"저장된 프로그램을 주기억장치로 불러온 뒤 CPU가 처리해요."],
+["응용 소프트웨어가 하는 일로 알맞은 것은?",["사용자가 특정 목적의 작업을 하도록 돕는다","하드웨어 자원을 전체적으로 관리한다","CPU의 부품을 만든다","전원을 공급한다"],0,"하드웨어 전체 관리는 운영체제(시스템 소프트웨어)의 일이에요."],
+["[분석] 앱을 여러 개 켰더니 모두 멈추지 않고 돌아간다. 이때 운영체제가 하는 일로 가장 알맞은 것은?",["각 앱에 메모리 공간을 나누고 CPU 사용 시간을 조정한다","앱 화면을 인쇄한다","보조기억장치를 CPU로 교체한다","앱을 모두 하나의 파일로 합친다"],0,"운영체제는 메모리와 CPU 같은 자원을 여러 프로그램이 나눠 쓰도록 관리해요."]
+];
+var qi=0,score=0,done=false,locked=false,wrong=[];
+function render(){var box=document.getElementById("qbox");
+ document.getElementById("pg").style.width=(qi/Q.length*100)+"%";
+ if(qi>=Q.length){done=true;var h="<h2>"+(score>=9?"🏆 ":score>=6?"👍 ":"💪 ")+"결과: "+score+" / "+Q.length+"</h2>";
+  h+=wrong.length?"<p>다시 확인할 문제: "+wrong.map(function(n){return n+"번"}).join(", ")+"</p><p class='note'>‘개념 학습’ 탭에서 해당 부분을 복습해 보세요.</p>":"<p>모두 맞혔어요! 🎉</p>";
+  h+="<button class='btn' id='again'>다시 풀기</button>";box.innerHTML=h;
+  document.getElementById("again").onclick=function(){qi=0;score=0;done=false;wrong=[];render()};return}
+ var q=Q[qi];locked=false;
+ var h="<p class='note'>문제 "+(qi+1)+" / "+Q.length+"</p><h2 style='font-size:1.05rem'>"+q[0]+"</h2>";
+ q[1].forEach(function(o,i){h+="<button class='opt' data-i='"+i+"'>"+(i+1)+". "+o+"</button>"});
+ h+="<div id='fb'></div>";box.innerHTML=h;
+ [].forEach.call(box.querySelectorAll(".opt"),function(b){b.onclick=function(){pick(+b.dataset.i)}})}
+function pick(i){if(locked)return;locked=true;var q=Q[qi],ok=i===q[2];if(ok)score++;else wrong.push(qi+1);
+ var os=document.querySelectorAll(".opt");os[q[2]].classList.add("ok");if(!ok)os[i].classList.add("no");
+ document.getElementById("fb").innerHTML="<div class='fb "+(ok?"ok":"no")+"'>"+(ok?"✅ 정답! ":"❌ 오답. ")+q[3]+"</div><p><button class='btn' id='nx'>"+(qi===Q.length-1?"결과 보기":"다음 문제 ▶")+"</button></p>";
+ document.getElementById("nx").onclick=function(){qi++;render()}}
+show("learn");
+</script>
+</body>
+</html>
